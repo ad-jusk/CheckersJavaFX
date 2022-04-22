@@ -6,7 +6,7 @@ import javafx.scene.shape.Ellipse;
 
 public class Piece extends StackPane {
 
-    private  TypeOfPiece typeOfPiece;
+    private TypeOfPiece typeOfPiece;
     private double mousePosX, mousePoxY;
     private double oldX, oldY;
 
@@ -16,9 +16,8 @@ public class Piece extends StackPane {
         final double pieceBackgroundHeight = 0.26;
 
         this.typeOfPiece = type;
-
-        //relocate(positionX * CheckersApp.TILE_SIZE, positionY * CheckersApp.TILE_SIZE);
         movePiece(positionX, positionY);
+
         //Piece background
         Ellipse pieceBg = new Ellipse(CheckersApp.TILE_SIZE * pieceBackgroundWidth, CheckersApp.TILE_SIZE * pieceBackgroundHeight);
         pieceBg.setFill(Color.BLACK);

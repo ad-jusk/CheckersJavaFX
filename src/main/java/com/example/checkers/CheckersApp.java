@@ -1,7 +1,6 @@
 package com.example.checkers;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -15,17 +14,20 @@ public class CheckersApp extends Application {
     public static final int TILE_SIZE = 100;
     public static final int BOARD_WIDTH = 8;
     public static final int BOARD_HEIGHT = 8;
+    public static final int STATUS_BAR_WIDTH = 2;  //TWO TILES
+    public static final int STATUS_BAR_HEIGHT = 8;
 
-    private Group tileGroup = new Group();
-    private Group pieceGroup = new Group();
+    private final Group tileGroup = new Group();
+    private final Group pieceGroup = new Group();
+    private final StatusBar statusBar = new StatusBar(BOARD_WIDTH);
 
-    private Tile[][] board = new Tile[BOARD_HEIGHT][BOARD_WIDTH];
+    private final Tile[][] board = new Tile[BOARD_HEIGHT][BOARD_WIDTH];
 
     private Parent createContent(){
         Pane root = new Pane();
-        root.setPrefSize(TILE_SIZE * BOARD_WIDTH, TILE_SIZE * BOARD_HEIGHT);
+        root.setPrefSize(TILE_SIZE * (BOARD_WIDTH + STATUS_BAR_WIDTH), TILE_SIZE * BOARD_HEIGHT);
 
-        root.getChildren().addAll(tileGroup, pieceGroup);
+        root.getChildren().addAll(tileGroup, pieceGroup, statusBar);
 
         //CREATE TILES AND PIECES
         Tile tile = null;
@@ -49,6 +51,12 @@ public class CheckersApp extends Application {
                 }
             }
         }
+
+        //ADD ACTION TO START BUTTON
+        statusBar.getStartButton().setOnAction(e -> {
+            resetPiecesPosition();
+        });
+
         return root;
     }
 
@@ -81,9 +89,33 @@ public class CheckersApp extends Application {
                     int killedPieceY = pixelsToBoard(killedPiece.getOldY());
                     board[killedPieceX][killedPieceY].setPiece(null);
                     pieceGroup.getChildren().remove(killedPiece);
+                    break;
             }
         });
         return piece;
+    }
+
+    public void resetPiecesPosition(){
+        pieceGroup.getChildren().clear();
+        for(int row = 0;row<BOARD_HEIGHT;row++){
+            for(int column = 0;column<BOARD_WIDTH;column++){
+                //ADDING PIECES HERE
+                Piece piece = null;
+                if(row < 3 && (row + column) % 2 == 1){
+                    piece = makePiece(TypeOfPiece.GREEN, column, row);
+                }
+                if(row > 4 && (row + column) % 2 != 0){
+                    piece = makePiece(TypeOfPiece.WHITE, column, row);
+                }
+                if(piece != null) {
+                    board[column][row].setPiece(piece);
+                    pieceGroup.getChildren().add(piece);
+                }
+                else{
+                    board[column][row].setPiece(null);
+                }
+            }
+        }
     }
 
     private MoveHandler tryMove(Piece piece, int newPosX, int newPosY){

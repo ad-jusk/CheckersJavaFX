@@ -13,7 +13,7 @@ public class Tile extends Rectangle {
         relocate(CheckersApp.TILE_SIZE * positionX, CheckersApp.TILE_SIZE * positionY);
         setFill(red ? Color.RED : Color.BLACK);
     }
+    public void setPiece(Piece piece){ this.piece = piece; }
     public boolean containsPiece(){ return piece != null; }
-    public void setPiece(Piece piece) { this.piece = piece; }
     public Piece getPiece() { return piece; }
 }
