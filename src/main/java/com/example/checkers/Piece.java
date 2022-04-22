@@ -7,8 +7,8 @@ import javafx.scene.shape.Ellipse;
 public class Piece extends StackPane {
 
     private  TypeOfPiece typeOfPiece;
-
-    public TypeOfPiece getTypeOfPiece() { return typeOfPiece; }
+    private double mousePosX, mousePoxY;
+    private double oldX, oldY;
 
     public Piece(TypeOfPiece type, int positionX, int positionY){
 
@@ -17,8 +17,8 @@ public class Piece extends StackPane {
 
         this.typeOfPiece = type;
 
-        relocate(positionX * CheckersApp.TILE_SIZE, positionY * CheckersApp.TILE_SIZE);
-
+        //relocate(positionX * CheckersApp.TILE_SIZE, positionY * CheckersApp.TILE_SIZE);
+        movePiece(positionX, positionY);
         //Piece background
         Ellipse pieceBg = new Ellipse(CheckersApp.TILE_SIZE * pieceBackgroundWidth, CheckersApp.TILE_SIZE * pieceBackgroundHeight);
         pieceBg.setFill(Color.BLACK);
@@ -36,6 +36,27 @@ public class Piece extends StackPane {
         pieceFg.setTranslateY((CheckersApp.TILE_SIZE - CheckersApp.TILE_SIZE * pieceBackgroundHeight * 2) / 2 - 7);
 
         getChildren().addAll(pieceBg, pieceFg);
+        setOnMousePressed(e -> {
+            mousePosX = e.getSceneX();
+            mousePoxY = e.getSceneY();
+        });
+        setOnMouseDragged(e -> {
+            relocate(e.getSceneX() - mousePosX + oldX, e.getSceneY() - mousePoxY + oldY);
+        });
 
     }
+
+    public TypeOfPiece getTypeOfPiece() { return typeOfPiece; }
+
+    public double getOldX() { return oldX; }
+
+    public double getOldY() { return oldY; }
+
+    public void movePiece(int positionX, int positionY){
+        oldX = positionX * CheckersApp.TILE_SIZE;
+        oldY = positionY * CheckersApp.TILE_SIZE;
+        relocate(oldX, oldY);
+    }
+
+    public void abortMove(){ relocate(oldX, oldY); }
 }

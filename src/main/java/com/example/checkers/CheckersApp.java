@@ -53,7 +53,61 @@ public class CheckersApp extends Application {
     }
 
     private Piece makePiece(TypeOfPiece type, int x, int y){
-        return new Piece(type, x, y);
+        Piece piece = new Piece(type, x, y);
+        piece.setOnMouseReleased(e -> {
+            int newX = pixelsToBoard(piece.getLayoutX());
+            int newY = pixelsToBoard(piece.getLayoutY());
+            MoveHandler handler = tryMove(piece, newX, newY);
+
+            int x0 = pixelsToBoard(piece.getOldX());
+            int y0 = pixelsToBoard(piece.getOldY());
+
+            switch(handler.getType()){
+                case NO_MOVE:
+                    piece.abortMove();
+                    break;
+                case NORMAL_MOVE:
+                    piece.movePiece(newX, newY);
+                    board[x0][y0].setPiece(null);
+                    board[newX][newY].setPiece(piece);
+                    break;
+                case KILL:
+                    piece.movePiece(newX, newY);
+                    board[x0][y0].setPiece(null);
+                    board[newX][newY].setPiece(piece);
+
+                    Piece killedPiece = handler.getPiece();
+                    int killedPieceX = pixelsToBoard(killedPiece.getOldX());
+                    int killedPieceY = pixelsToBoard(killedPiece.getOldY());
+                    board[killedPieceX][killedPieceY].setPiece(null);
+                    pieceGroup.getChildren().remove(killedPiece);
+            }
+        });
+        return piece;
+    }
+
+    private MoveHandler tryMove(Piece piece, int newPosX, int newPosY){
+        if(board[newPosX][newPosY].containsPiece() || (newPosX + newPosY) % 2 == 0){
+            return new MoveHandler(TypeOfMove.NO_MOVE);
+        }
+        int x0 = pixelsToBoard(piece.getOldX());
+        int y0 = pixelsToBoard(piece.getOldY());
+
+        if(Math.abs(newPosX - x0) == 1 && newPosY - y0 == piece.getTypeOfPiece().moveDirection){
+            return new MoveHandler(TypeOfMove.NORMAL_MOVE);
+        }
+        else if(Math.abs(newPosX - x0) == 2 && newPosY - y0 == piece.getTypeOfPiece().moveDirection * 2){
+            int enemyX = x0 + (newPosX - x0) / 2;
+            int enemyY = y0 + (newPosY - y0) / 2;
+            if(board[enemyX][enemyY].containsPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != piece.getTypeOfPiece()){
+                return new MoveHandler(TypeOfMove.KILL, board[enemyX][enemyY].getPiece());
+            }
+        }
+        return new MoveHandler(TypeOfMove.NO_MOVE);
+    }
+
+    private int pixelsToBoard(double pixel){
+        return (int)(pixel + TILE_SIZE / 2) / TILE_SIZE;
     }
 
     @Override
