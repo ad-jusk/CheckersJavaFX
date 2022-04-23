@@ -55,6 +55,12 @@ public class CheckersApp extends Application {
         //ADD ACTION TO START BUTTON
         statusBar.getStartButton().setOnAction(e -> {
             resetPiecesPosition();
+            statusBar.getStartButton().setText("Reset");
+
+            boolean isGreenTurn = true;
+
+            Player playerGreen = new Player(TypeOfPiece.GREEN);
+            Player playerWhite = new Player(TypeOfPiece.WHITE);
         });
 
         return root;
@@ -140,7 +146,8 @@ public class CheckersApp extends Application {
                     }
                 }
                 else{
-                    if(board[enemyX][enemyY].containsPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != piece.getTypeOfPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != TypeOfPiece.WHITE){
+                    TypeOfPiece enemyType = board[enemyX][enemyY].getPiece().getTypeOfPiece();
+                    if(board[enemyX][enemyY].containsPiece() && enemyType != piece.getTypeOfPiece() && enemyType != TypeOfPiece.WHITE){
                         return new MoveHandler(TypeOfMove.KILL, board[enemyX][enemyY].getPiece());
                     }
                 }
@@ -158,7 +165,19 @@ public class CheckersApp extends Application {
         else if(Math.abs(newPosX - x0) == 2 && newPosY - y0 == piece.getTypeOfPiece().moveDirection * 2){
             int enemyX = x0 + (newPosX - x0) / 2;
             int enemyY = y0 + (newPosY - y0) / 2;
-            if(board[enemyX][enemyY].containsPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != piece.getTypeOfPiece()){
+            TypeOfPiece enemyType = board[enemyX][enemyY].getPiece().getTypeOfPiece();
+            TypeOfPiece pieceType = piece.getTypeOfPiece();
+            boolean isFromTeam = false;
+            if(pieceType == TypeOfPiece.GREEN && enemyType == TypeOfPiece.KING_GREEN){
+                isFromTeam = true;
+            }
+            else if(pieceType == TypeOfPiece.WHITE && enemyType == TypeOfPiece.KING_WHITE){
+                isFromTeam = true;
+            }
+            if(board[enemyX][enemyY].containsPiece() && enemyType != pieceType && !isFromTeam){
+                if((newPosY == 0 || newPosY == 7) && piece.getTypeOfPiece() != TypeOfPiece.KING_GREEN && piece.getTypeOfPiece() != TypeOfPiece.KING_WHITE){
+                    piece.transformToKing(piece.getTypeOfPiece());
+                }
                 return new MoveHandler(TypeOfMove.KILL, board[enemyX][enemyY].getPiece());
             }
         }
