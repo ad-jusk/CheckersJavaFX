@@ -10,10 +10,10 @@ public class Piece extends StackPane {
     private double mousePosX, mousePoxY;
     private double oldX, oldY;
 
-    public Piece(TypeOfPiece type, int positionX, int positionY){
+    private final double pieceBackgroundWidth = 0.3125;
+    private final double pieceBackgroundHeight = 0.26;
 
-        final double pieceBackgroundWidth = 0.3125;
-        final double pieceBackgroundHeight = 0.26;
+    public Piece(TypeOfPiece type, int positionX, int positionY){
 
         this.typeOfPiece = type;
         movePiece(positionX, positionY);
@@ -47,6 +47,8 @@ public class Piece extends StackPane {
 
     public TypeOfPiece getTypeOfPiece() { return typeOfPiece; }
 
+    public void setTypeOfPiece(TypeOfPiece typeOfPiece) { this.typeOfPiece = typeOfPiece; }
+
     public double getOldX() { return oldX; }
 
     public double getOldY() { return oldY; }
@@ -55,6 +57,20 @@ public class Piece extends StackPane {
         oldX = positionX * CheckersApp.TILE_SIZE;
         oldY = positionY * CheckersApp.TILE_SIZE;
         relocate(oldX, oldY);
+    }
+
+    public void transformToKing(TypeOfPiece type){
+
+        //SET PIECE TO KING
+        setTypeOfPiece(type == TypeOfPiece.GREEN ? TypeOfPiece.KING_GREEN : TypeOfPiece.KING_WHITE);
+
+        Ellipse ellipse = new Ellipse(12,12);
+        ellipse.setFill(Color.YELLOW);
+        ellipse.setTranslateX((CheckersApp.TILE_SIZE - CheckersApp.TILE_SIZE * pieceBackgroundWidth * 2) / 2 - 3);
+        ellipse.setTranslateY((CheckersApp.TILE_SIZE - CheckersApp.TILE_SIZE * pieceBackgroundHeight * 2) / 2 - 7);
+        ellipse.setStroke(Color.BLACK);
+        ellipse.setStrokeWidth(CheckersApp.TILE_SIZE * 0.03);
+        getChildren().add(ellipse);
     }
 
     public void abortMove(){ relocate(oldX, oldY); }

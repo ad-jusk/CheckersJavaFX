@@ -125,7 +125,34 @@ public class CheckersApp extends Application {
         int x0 = pixelsToBoard(piece.getOldX());
         int y0 = pixelsToBoard(piece.getOldY());
 
+        //GREEN KING PIECE
+        if(piece.getTypeOfPiece() == TypeOfPiece.KING_GREEN || piece.getTypeOfPiece() == TypeOfPiece.KING_WHITE){
+            if(Math.abs(newPosX - x0) == 1 && Math.abs(newPosY - y0) == 1){
+                return new MoveHandler(TypeOfMove.NORMAL_MOVE);
+            }
+            else if(Math.abs(newPosX - x0) == 2 && Math.abs(newPosY - y0) == 2){
+                int enemyX = x0 + (newPosX - x0) / 2;
+                int enemyY = y0 + (newPosY - y0) / 2;
+
+                if(piece.getTypeOfPiece() == TypeOfPiece.KING_GREEN){
+                    if(board[enemyX][enemyY].containsPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != piece.getTypeOfPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != TypeOfPiece.GREEN){
+                        return new MoveHandler(TypeOfMove.KILL, board[enemyX][enemyY].getPiece());
+                    }
+                }
+                else{
+                    if(board[enemyX][enemyY].containsPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != piece.getTypeOfPiece() && board[enemyX][enemyY].getPiece().getTypeOfPiece() != TypeOfPiece.WHITE){
+                        return new MoveHandler(TypeOfMove.KILL, board[enemyX][enemyY].getPiece());
+                    }
+                }
+                return new MoveHandler(TypeOfMove.NO_MOVE);
+            }
+        }
+
+        //NORMAL PIECE
         if(Math.abs(newPosX - x0) == 1 && newPosY - y0 == piece.getTypeOfPiece().moveDirection){
+            if((newPosY == 0 || newPosY == 7) && piece.getTypeOfPiece() != TypeOfPiece.KING_GREEN && piece.getTypeOfPiece() != TypeOfPiece.KING_WHITE){
+                piece.transformToKing(piece.getTypeOfPiece());
+            }
             return new MoveHandler(TypeOfMove.NORMAL_MOVE);
         }
         else if(Math.abs(newPosX - x0) == 2 && newPosY - y0 == piece.getTypeOfPiece().moveDirection * 2){
