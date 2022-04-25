@@ -14,8 +14,7 @@ import javafx.scene.text.Font;
 public class StatusBar extends BorderPane {
 
     private StatusBarCenter center;
-    private Label greenPlayer;
-    private Label whitePlayer;
+    private Label statusLabel;
 
     public StatusBar(int posX){
         //STYLING STATUS BAR
@@ -23,11 +22,8 @@ public class StatusBar extends BorderPane {
         relocate(posX * CheckersApp.TILE_SIZE, 0);
         setStyle("-fx-background-color: #333333");
 
-        //ADDING TITLE LABEL HERE
-        Label titleLabel = addTitleLabel();
-        setMargin(titleLabel, new Insets(20,0,0,0));
-        setAlignment(titleLabel, Pos.CENTER);
-        setTop(titleLabel);
+        //ADDING STATUS LABEL HERE
+        addTitleLabel();
 
         //ADDING EXIT BUTTON
         Button exitButton = addExitButton();
@@ -37,17 +33,18 @@ public class StatusBar extends BorderPane {
 
         //ADDING CENTER PANE
         addCenterPane();
-
     }
 
-    public Label addTitleLabel(){
-        Label label = new Label("  Welcome\nto checkers!");
-        label.setPrefSize(160, 70);
-        label.setTextFill(Color.WHITE);
-        label.setFont(new Font("Arial", 26));
-        label.setAlignment(Pos.CENTER);
-        label.setStyle("-fx-background-color: black; -fx-background-radius: 15px; -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 10 10 10 10;");
-        return label;
+    public void addTitleLabel(){
+        statusLabel= new Label("  Welcome\nto checkers!");
+        statusLabel.setPrefSize(160, 70);
+        statusLabel.setTextFill(Color.WHITE);
+        statusLabel.setFont(new Font("Arial", 26));
+        statusLabel.setAlignment(Pos.CENTER);
+        statusLabel.setStyle("-fx-background-color: black; -fx-background-radius: 15px; -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 10 10 10 10;");
+        setMargin(statusLabel, new Insets(20,0,0,0));
+        setAlignment(statusLabel, Pos.CENTER);
+        setTop(statusLabel);
     }
 
     public Button addExitButton(){
@@ -82,4 +79,8 @@ public class StatusBar extends BorderPane {
 
 
     public Button getStartButton() { return center.getStartButton(); }
+
+    public Label getStatusLabel() {
+        return statusLabel;
+    }
 }

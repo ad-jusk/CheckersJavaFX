@@ -2,6 +2,7 @@ package com.example.checkers;
 
 import javafx.application.Application;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -14,7 +15,7 @@ public class CheckersApp extends Application {
     public static final int TILE_SIZE = 100;
     public static final int BOARD_WIDTH = 8;
     public static final int BOARD_HEIGHT = 8;
-    public static final int STATUS_BAR_WIDTH = 2;  //TWO TILES
+    public static final int STATUS_BAR_WIDTH = 2;
     public static final int STATUS_BAR_HEIGHT = 8;
 
     private final Group tileGroup = new Group();
@@ -23,6 +24,10 @@ public class CheckersApp extends Application {
 
     private final Tile[][] board = new Tile[BOARD_HEIGHT][BOARD_WIDTH];
 
+    private String whoseTurn;
+    private Player playerGreen;
+    private Player playerWhite;
+
     private Parent createContent(){
         Pane root = new Pane();
         root.setPrefSize(TILE_SIZE * (BOARD_WIDTH + STATUS_BAR_WIDTH), TILE_SIZE * BOARD_HEIGHT);
@@ -30,7 +35,7 @@ public class CheckersApp extends Application {
         root.getChildren().addAll(tileGroup, pieceGroup, statusBar);
 
         //CREATE TILES AND PIECES
-        Tile tile = null;
+        Tile tile;
         for(int row = 0;row<BOARD_HEIGHT;row++){
             for(int column = 0;column<BOARD_WIDTH;column++){
                 tile = new Tile((row + column) % 2 == 0,column,row);
@@ -52,15 +57,18 @@ public class CheckersApp extends Application {
             }
         }
 
+        //INITIALLY DISABLE ALL PIECES
+        disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, true);
+        disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
+
         //ADD ACTION TO START BUTTON
         statusBar.getStartButton().setOnAction(e -> {
             resetPiecesPosition();
             statusBar.getStartButton().setText("Reset");
-
-            boolean isGreenTurn = true;
-
-            Player playerGreen = new Player(TypeOfPiece.GREEN);
-            Player playerWhite = new Player(TypeOfPiece.WHITE);
+            statusBar.getStatusLabel().setText("Green turn");
+            whoseTurn = "green";
+            playerGreen = new Player();
+            playerWhite = new Player();
         });
 
         return root;
@@ -84,6 +92,7 @@ public class CheckersApp extends Application {
                     piece.movePiece(newX, newY);
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
+                    handleRound(0);
                     break;
                 case KILL:
                     piece.movePiece(newX, newY);
@@ -95,6 +104,16 @@ public class CheckersApp extends Application {
                     int killedPieceY = pixelsToBoard(killedPiece.getOldY());
                     board[killedPieceX][killedPieceY].setPiece(null);
                     pieceGroup.getChildren().remove(killedPiece);
+                    handleRound(1);
+
+                    //CHECK WIN
+                    String winner = checkIfSomeoneWon();
+                    if(winner.equals("white")){
+                        statusBar.getStatusLabel().setText("White wins!");
+                    }
+                    else if(winner.equals("green")){
+                        statusBar.getStatusLabel().setText("Green wins!");
+                    }
                     break;
             }
         });
@@ -120,6 +139,16 @@ public class CheckersApp extends Application {
                 else{
                     board[column][row].setPiece(null);
                 }
+            }
+        }
+    }
+
+    public void disableOrEnablePieces(TypeOfPiece type, TypeOfPiece kingType, boolean disabled){
+        for(int i = 0;i<pieceGroup.getChildren().size();i++){
+            Node node = pieceGroup.getChildren().get(i);
+            Piece piece = (Piece)node;
+            if(piece.getTypeOfPiece() == type || piece.getTypeOfPiece() == kingType){
+                piece.setDisable(disabled);
             }
         }
     }
@@ -184,6 +213,37 @@ public class CheckersApp extends Application {
         return new MoveHandler(TypeOfMove.NO_MOVE);
     }
 
+    public void handleRound(int point){
+        switch (whoseTurn){
+            case "green":
+                disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, true);
+                disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, false);
+                playerGreen.addPoint(point);
+                whoseTurn = "white";
+                statusBar.getStatusLabel().setText("White turn");
+                break;
+            case "white":
+                disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
+                disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, false);
+                playerWhite.addPoint(point);
+                whoseTurn = "green";
+                statusBar.getStatusLabel().setText("Green turn");
+                break;
+            default:
+                break;
+        }
+    }
+
+    public String checkIfSomeoneWon(){
+        if(playerWhite.getKilledEnemyPieces() == 12){
+            return "white";
+        }
+        else if(playerGreen.getKilledEnemyPieces() == 12){
+            return "green";
+        }
+        return "";
+    }
+
     private int pixelsToBoard(double pixel){
         return (int)(pixel + TILE_SIZE / 2) / TILE_SIZE;
     }
@@ -198,6 +258,6 @@ public class CheckersApp extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        launch();
     }
 }
