@@ -16,16 +16,19 @@ public class StatusBarCenter extends BorderPane {
 
     private Button startButton;
 
-    private Label greenPlayerLabel;
-    private Label whitePlayerLabel;
+    private final Label greenPlayerLabel;
+    private final Label whitePlayerLabel;
 
     private int greenSeconds;
     private int greenMinutes;
     private int whiteSeconds;
     private int whiteMinutes;
+    private int greenKills;
+    private int whiteKills;
 
-    private Timeline greenTimeline;
-    private Timeline whiteTimeline;
+    private final Timeline greenTimeline;
+    private final Timeline whiteTimeline;
+
 
     public StatusBarCenter(){
         setPrefSize(CheckersApp.TILE_SIZE * 2, CheckersApp.TILE_SIZE * 4);
@@ -42,16 +45,24 @@ public class StatusBarCenter extends BorderPane {
         //ADD GREEN PLAYER LABEL
         greenPlayerLabel = addPlayerLabel("green");
         greenPlayerLabel.setAlignment(Pos.CENTER);
+        refreshPlayerLabel("green");
         setMargin(greenPlayerLabel, new Insets(10, 0, 0, 14));
         setTop(greenPlayerLabel);
+
+        //ADD WHITE PLAYER LABEL
+        whitePlayerLabel = addPlayerLabel("white");
+        whitePlayerLabel.setAlignment(Pos.CENTER);
+        refreshPlayerLabel("white");
+        setMargin(whitePlayerLabel, new Insets(0,0,10,14));
+        setBottom(whitePlayerLabel);
 
         //ADD GREEN TIMELINE
         greenTimeline = new Timeline();
         greenTimeline.setCycleCount(Timeline.INDEFINITE);
         greenTimeline.getKeyFrames().add(
                 new KeyFrame(Duration.seconds(1), e-> {
-                    greenPlayerLabel.setText(String.format("%02d:%02d",greenMinutes, greenSeconds));
                     greenSeconds++;
+                    refreshPlayerLabel("green");
                     if(greenSeconds == 60){
                         greenSeconds = 0;
                         greenMinutes++;
@@ -63,21 +74,13 @@ public class StatusBarCenter extends BorderPane {
         whiteTimeline.setCycleCount(Timeline.INDEFINITE);
         whiteTimeline.getKeyFrames().add(
                 new KeyFrame(Duration.seconds(1), e-> {
-                    whitePlayerLabel.setText(String.format("%02d:%02d",whiteMinutes, whiteSeconds));
                     whiteSeconds++;
+                    refreshPlayerLabel("white");
                     if(whiteSeconds == 60){
                         whiteSeconds = 0;
                         whiteMinutes++;
                     }
                 }));
-
-        //ADD WHITE PLAYER LABEL
-        whitePlayerLabel = addPlayerLabel("white");
-        whitePlayerLabel.setAlignment(Pos.CENTER);
-        setMargin(whitePlayerLabel, new Insets(0,0,10,14));
-        setBottom(whitePlayerLabel);
-
-
     }
 
     public void addStartButton(){
@@ -86,38 +89,52 @@ public class StatusBarCenter extends BorderPane {
         startButton.setText("Start game");
         startButton.setTextFill(Color.WHITE);
         startButton.setFont(new Font("Arial", 26));
-        startButton.setStyle("-fx-background-color: black; -fx-background-radius: 15px; -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 10 10 10 10;");
+        startButton.setStyle("-fx-background-color: black; -fx-background-color: black; -fx-background-radius: 15px; -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 10 10 10 10;");
+        setMargin(startButton, new Insets(0,0,12,0));
         startButton.setAlignment(Pos.CENTER);
         setCenter(startButton);
     }
 
     public Label addPlayerLabel(String color) {
         Label label = new Label();
-        label.setTextFill(color.equals("green") ? Color.GREEN : Color.WHITE);
-        label.setText("00:00");
+        label.setTextFill(color.equals("green") ? Color.web("#00cc00") : Color.WHITE);
         label.setPrefSize(160, CheckersApp.TILE_SIZE * 2);
         label.setFont(new Font("Arial", 28));
         label.setStyle("-fx-background-color: black; -fx-background-radius: 15px; -fx-border-color: " + color + "; -fx-border-width: 2; -fx-border-radius: 10 10 10 10;");
         return label;
     }
 
-    public void resetTimelines(){
+    public void resetTimelinesAndKills(){
         greenSeconds = 0;
         greenMinutes = 0;
         whiteSeconds = 0;
         whiteMinutes = 0;
+        greenKills = 0;
+        whiteKills = 0;
+        whitePlayerLabel.setText(String.format("Kills: %2d\n\n %02d:%02d", whiteKills, whiteMinutes, whiteSeconds));
+        greenPlayerLabel.setText(String.format("Kills: %2d\n\n %02d:%02d", greenKills, greenMinutes, greenSeconds));
+    }
+
+    public void setKills(int kills, String which) {
+        if(which.equals("green")){
+            this.greenKills = kills;
+        }
+        else{
+            this.whiteKills = kills;
+        }
+    }
+
+    public void refreshPlayerLabel(String which){
+        if(which.equals("green")){
+            greenPlayerLabel.setText(String.format("Kills: %2d\n\n %02d:%02d", greenKills, greenMinutes, greenSeconds));
+        }
+        else{
+            whitePlayerLabel.setText(String.format("Kills: %2d\n\n %02d:%02d", whiteKills, whiteMinutes, whiteSeconds));
+        }
     }
 
     public Button getStartButton() {
         return startButton;
-    }
-
-    public Label getGreenPlayerLabel() {
-        return greenPlayerLabel;
-    }
-
-    public Label getWhitePlayerLabel() {
-        return whitePlayerLabel;
     }
 
     public Timeline getGreenTimeline() {
@@ -127,4 +144,5 @@ public class StatusBarCenter extends BorderPane {
     public Timeline getWhiteTimeline() {
         return whiteTimeline;
     }
+
 }

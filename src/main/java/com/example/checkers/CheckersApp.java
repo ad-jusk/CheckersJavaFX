@@ -67,15 +67,28 @@ public class CheckersApp extends Application {
         statusBarCenter.getStartButton().setOnAction(e -> {
             playerGreen = new Player();
             playerWhite = new Player();
-
-            resetPiecesPosition();
-            statusBarCenter.resetTimelines();
-            statusBarCenter.getGreenTimeline().play();
-            statusBarCenter.getWhiteTimeline().stop();
-            statusBarCenter.getStartButton().setText("Reset");
-            statusBar.getStatusLabel().setText("Green turn");
-            whoseTurn = "green";
-            statusBarCenter.getWhitePlayerLabel().setText("00:00");
+            if(statusBarCenter.getStartButton().getText().equals("Start game")){
+                resetPiecesPosition();
+                statusBarCenter.resetTimelinesAndKills();
+                statusBarCenter.getGreenTimeline().play();
+                statusBarCenter.getWhiteTimeline().stop();
+                statusBarCenter.getStartButton().setText("Reset");
+                statusBar.getStatusLabel().setText("Green turn");
+                whoseTurn = "green";
+                disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, false);
+                disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
+            }
+            else{
+                resetPiecesPosition();
+                statusBarCenter.resetTimelinesAndKills();
+                statusBarCenter.getWhiteTimeline().stop();
+                statusBarCenter.getGreenTimeline().stop();
+                statusBar.getStatusLabel().setText("  Welcome\nto checkers!");
+                statusBarCenter.getStartButton().setText("Start game");
+                disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, true);
+                disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
+                whoseTurn = "";
+            }
         });
         return root;
     }
@@ -116,10 +129,12 @@ public class CheckersApp extends Application {
                     String winner = checkIfSomeoneWon();
                     if(winner.equals("white")){
                         statusBarCenter.getWhiteTimeline().stop();
+                        statusBarCenter.getGreenTimeline().stop();
                         statusBar.getStatusLabel().setText("White wins!");
                     }
                     else if(winner.equals("green")){
                         statusBarCenter.getGreenTimeline().stop();
+                        statusBarCenter.getWhiteTimeline().stop();
                         statusBar.getStatusLabel().setText("Green wins!");
                     }
                     break;
@@ -226,16 +241,25 @@ public class CheckersApp extends Application {
             case "green":
                 disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, true);
                 disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, false);
-                playerGreen.addPoint(point);
+                if (point == 1) {
+                    playerGreen.addPoint(point);
+                    statusBarCenter.setKills(playerGreen.getKilledEnemyPieces(), whoseTurn);
+                    statusBarCenter.refreshPlayerLabel(whoseTurn);
+                }
                 whoseTurn = "white";
                 statusBar.getStatusLabel().setText("White turn");
                 statusBarCenter.getGreenTimeline().stop();
                 statusBarCenter.getWhiteTimeline().play();
+                statusBarCenter.refreshPlayerLabel(whoseTurn);
                 break;
             case "white":
                 disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
                 disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, false);
-                playerWhite.addPoint(point);
+                if (point == 1) {
+                    playerWhite.addPoint(point);
+                    statusBarCenter.setKills(playerWhite.getKilledEnemyPieces(), whoseTurn);
+                    statusBarCenter.refreshPlayerLabel(whoseTurn);
+                }
                 whoseTurn = "green";
                 statusBar.getStatusLabel().setText("Green turn");
                 statusBarCenter.getWhiteTimeline().stop();
