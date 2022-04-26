@@ -21,6 +21,7 @@ public class CheckersApp extends Application {
     private final Group tileGroup = new Group();
     private final Group pieceGroup = new Group();
     private final StatusBar statusBar = new StatusBar(BOARD_WIDTH);
+    private StatusBarCenter statusBarCenter;
 
     private final Tile[][] board = new Tile[BOARD_HEIGHT][BOARD_WIDTH];
 
@@ -33,6 +34,7 @@ public class CheckersApp extends Application {
         root.setPrefSize(TILE_SIZE * (BOARD_WIDTH + STATUS_BAR_WIDTH), TILE_SIZE * BOARD_HEIGHT);
 
         root.getChildren().addAll(tileGroup, pieceGroup, statusBar);
+        statusBarCenter = statusBar.getStatusCenter();
 
         //CREATE TILES AND PIECES
         Tile tile;
@@ -62,15 +64,19 @@ public class CheckersApp extends Application {
         disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
 
         //ADD ACTION TO START BUTTON
-        statusBar.getStartButton().setOnAction(e -> {
-            resetPiecesPosition();
-            statusBar.getStartButton().setText("Reset");
-            statusBar.getStatusLabel().setText("Green turn");
-            whoseTurn = "green";
+        statusBarCenter.getStartButton().setOnAction(e -> {
             playerGreen = new Player();
             playerWhite = new Player();
-        });
 
+            resetPiecesPosition();
+            statusBarCenter.resetTimelines();
+            statusBarCenter.getGreenTimeline().play();
+            statusBarCenter.getWhiteTimeline().stop();
+            statusBarCenter.getStartButton().setText("Reset");
+            statusBar.getStatusLabel().setText("Green turn");
+            whoseTurn = "green";
+            statusBarCenter.getWhitePlayerLabel().setText("00:00");
+        });
         return root;
     }
 
@@ -109,9 +115,11 @@ public class CheckersApp extends Application {
                     //CHECK WIN
                     String winner = checkIfSomeoneWon();
                     if(winner.equals("white")){
+                        statusBarCenter.getWhiteTimeline().stop();
                         statusBar.getStatusLabel().setText("White wins!");
                     }
                     else if(winner.equals("green")){
+                        statusBarCenter.getGreenTimeline().stop();
                         statusBar.getStatusLabel().setText("Green wins!");
                     }
                     break;
@@ -221,6 +229,8 @@ public class CheckersApp extends Application {
                 playerGreen.addPoint(point);
                 whoseTurn = "white";
                 statusBar.getStatusLabel().setText("White turn");
+                statusBarCenter.getGreenTimeline().stop();
+                statusBarCenter.getWhiteTimeline().play();
                 break;
             case "white":
                 disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
@@ -228,6 +238,8 @@ public class CheckersApp extends Application {
                 playerWhite.addPoint(point);
                 whoseTurn = "green";
                 statusBar.getStatusLabel().setText("Green turn");
+                statusBarCenter.getWhiteTimeline().stop();
+                statusBarCenter.getGreenTimeline().play();
                 break;
             default:
                 break;

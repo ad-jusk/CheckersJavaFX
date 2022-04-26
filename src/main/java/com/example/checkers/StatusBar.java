@@ -78,9 +78,11 @@ public class StatusBar extends BorderPane {
     }
 
 
-    public Button getStartButton() { return center.getStartButton(); }
-
     public Label getStatusLabel() {
         return statusLabel;
+    }
+
+    public StatusBarCenter getStatusCenter() {
+        return center;
     }
 }
