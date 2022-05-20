@@ -1,4 +1,4 @@
-package com.example.checkers;
+package app;
 
 public class Player {
 
