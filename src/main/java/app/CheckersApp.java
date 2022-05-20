@@ -1,5 +1,7 @@
-package com.example.checkers;
+package app;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -7,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 
@@ -28,6 +31,9 @@ public class CheckersApp extends Application {
     private String whoseTurn;
     private Player playerGreen;
     private Player playerWhite;
+
+    private Timeline greenTimeline;
+    private Timeline whiteTimeline;
 
     private Parent createContent(){
         Pane root = new Pane();
@@ -63,6 +69,9 @@ public class CheckersApp extends Application {
         disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, true);
         disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
 
+        //ADD TIMERS
+        manageTimers();
+
         //ADD ACTION TO START BUTTON
         statusBarCenter.getStartButton().setOnAction(e -> {
             playerGreen = new Player();
@@ -70,8 +79,8 @@ public class CheckersApp extends Application {
             if(statusBarCenter.getStartButton().getText().equals("Start game")){
                 resetPiecesPosition();
                 statusBarCenter.resetTimelinesAndKills();
-                statusBarCenter.getGreenTimeline().play();
-                statusBarCenter.getWhiteTimeline().stop();
+                greenTimeline.play();
+                whiteTimeline.stop();
                 statusBarCenter.getStartButton().setText("Reset");
                 statusBar.getStatusLabel().setText("Green turn");
                 whoseTurn = "green";
@@ -81,8 +90,8 @@ public class CheckersApp extends Application {
             else{
                 resetPiecesPosition();
                 statusBarCenter.resetTimelinesAndKills();
-                statusBarCenter.getWhiteTimeline().stop();
-                statusBarCenter.getGreenTimeline().stop();
+                whiteTimeline.stop();
+                greenTimeline.stop();
                 statusBar.getStatusLabel().setText("  Welcome\nto checkers!");
                 statusBarCenter.getStartButton().setText("Start game");
                 disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, true);
@@ -90,6 +99,7 @@ public class CheckersApp extends Application {
                 whoseTurn = "";
             }
         });
+
         return root;
     }
 
@@ -128,13 +138,13 @@ public class CheckersApp extends Application {
                     //CHECK WIN
                     String winner = checkIfSomeoneWon();
                     if(winner.equals("white")){
-                        statusBarCenter.getWhiteTimeline().stop();
-                        statusBarCenter.getGreenTimeline().stop();
+                        whiteTimeline.stop();
+                        greenTimeline.stop();
                         statusBar.getStatusLabel().setText("White wins!");
                     }
                     else if(winner.equals("green")){
-                        statusBarCenter.getGreenTimeline().stop();
-                        statusBarCenter.getWhiteTimeline().stop();
+                        greenTimeline.stop();
+                        whiteTimeline.stop();
                         statusBar.getStatusLabel().setText("Green wins!");
                     }
                     break;
@@ -244,13 +254,13 @@ public class CheckersApp extends Application {
                 if (point == 1) {
                     playerGreen.addPoint(point);
                     statusBarCenter.setKills(playerGreen.getKilledEnemyPieces(), whoseTurn);
-                    statusBarCenter.refreshPlayerLabel(whoseTurn);
                 }
+                statusBarCenter.greenSeconds = 30;
+                statusBarCenter.refreshPlayerLabel(whoseTurn);
                 whoseTurn = "white";
                 statusBar.getStatusLabel().setText("White turn");
-                statusBarCenter.getGreenTimeline().stop();
-                statusBarCenter.getWhiteTimeline().play();
-                statusBarCenter.refreshPlayerLabel(whoseTurn);
+                greenTimeline.stop();
+                whiteTimeline.play();
                 break;
             case "white":
                 disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
@@ -258,12 +268,13 @@ public class CheckersApp extends Application {
                 if (point == 1) {
                     playerWhite.addPoint(point);
                     statusBarCenter.setKills(playerWhite.getKilledEnemyPieces(), whoseTurn);
-                    statusBarCenter.refreshPlayerLabel(whoseTurn);
                 }
+                statusBarCenter.whiteSeconds = 30;
+                statusBarCenter.refreshPlayerLabel(whoseTurn);
                 whoseTurn = "green";
                 statusBar.getStatusLabel().setText("Green turn");
-                statusBarCenter.getWhiteTimeline().stop();
-                statusBarCenter.getGreenTimeline().play();
+                whiteTimeline.stop();
+                greenTimeline.play();
                 break;
             default:
                 break;
@@ -278,6 +289,36 @@ public class CheckersApp extends Application {
             return "green";
         }
         return "";
+    }
+
+    public void manageTimers(){
+        //ADD GREEN TIMELINE
+        greenTimeline = new Timeline();
+        greenTimeline.setCycleCount(Timeline.INDEFINITE);
+        greenTimeline.getKeyFrames().add(
+                new KeyFrame(Duration.seconds(1), e-> {
+                    statusBarCenter.greenSeconds--;
+                    statusBarCenter.refreshPlayerLabel("green");
+                    if(statusBarCenter.greenSeconds == -1){
+                        statusBarCenter.greenSeconds = 30;
+                        statusBarCenter.refreshPlayerLabel("green");
+                        handleRound(0);
+                    }
+                }));
+
+        //ADD WHITE TIMELINE
+        whiteTimeline = new Timeline();
+        whiteTimeline.setCycleCount(Timeline.INDEFINITE);
+        whiteTimeline.getKeyFrames().add(
+                new KeyFrame(Duration.seconds(1), e-> {
+                    statusBarCenter.whiteSeconds--;
+                    statusBarCenter.refreshPlayerLabel("white");
+                    if(statusBarCenter.whiteSeconds == -1){
+                        statusBarCenter.whiteSeconds = 30;
+                        statusBarCenter.refreshPlayerLabel("white");
+                        handleRound(0);
+                    }
+                }));
     }
 
     private int pixelsToBoard(double pixel){
