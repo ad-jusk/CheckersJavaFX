@@ -15,7 +15,7 @@ public class Piece extends StackPane {
     private final double pieceBackgroundWidth = 0.3125;
     private final double pieceBackgroundHeight = 0.26;
 
-    private Ellipse pieceBg;
+    private final Ellipse pieceBg;
     private Ellipse pieceFg;
 
     public Piece(TypeOfPiece type, int positionX, int positionY){
@@ -65,7 +65,6 @@ public class Piece extends StackPane {
     }
 
     public void transformToKing(TypeOfPiece type){
-
         //SET PIECE TO KING
         setTypeOfPiece(type == TypeOfPiece.GREEN ? TypeOfPiece.KING_GREEN : TypeOfPiece.KING_WHITE);
         pieceBg.setFill(Color.YELLOW);

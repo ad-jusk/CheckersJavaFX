@@ -113,21 +113,18 @@ public class CheckersApp extends Application {
             int x0 = pixelsToBoard(piece.getOldX());
             int y0 = pixelsToBoard(piece.getOldY());
 
-            switch(handler.getType()){
-                case NO_MOVE:
-                    piece.abortMove();
-                    break;
-                case NORMAL_MOVE:
+            switch (handler.getType()) {
+                case NO_MOVE -> piece.abortMove();
+                case NORMAL_MOVE -> {
                     piece.movePiece(newX, newY);
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
                     handleRound(0);
-                    break;
-                case KILL:
+                }
+                case KILL -> {
                     piece.movePiece(newX, newY);
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
-
                     Piece killedPiece = handler.getPiece();
                     int killedPieceX = pixelsToBoard(killedPiece.getOldX());
                     int killedPieceY = pixelsToBoard(killedPiece.getOldY());
@@ -137,17 +134,16 @@ public class CheckersApp extends Application {
 
                     //CHECK WIN
                     String winner = checkIfSomeoneWon();
-                    if(winner.equals("white")){
+                    if (winner.equals("white")) {
                         whiteTimeline.stop();
                         greenTimeline.stop();
                         statusBar.getStatusLabel().setText("White wins!");
-                    }
-                    else if(winner.equals("green")){
+                    } else if (winner.equals("green")) {
                         greenTimeline.stop();
                         whiteTimeline.stop();
                         statusBar.getStatusLabel().setText("Green wins!");
                     }
-                    break;
+                }
             }
         });
         return piece;
@@ -187,13 +183,15 @@ public class CheckersApp extends Application {
     }
 
     private MoveHandler tryMove(Piece piece, int newPosX, int newPosY){
+        int x0 = pixelsToBoard(piece.getOldX());
+        int y0 = pixelsToBoard(piece.getOldY());
+        if(Math.abs(newPosX - x0) > 2 || Math.abs(newPosY - y0 ) > 2){
+            return new MoveHandler(TypeOfMove.NO_MOVE);
+        }
         if(board[newPosX][newPosY].containsPiece() || (newPosX + newPosY) % 2 == 0){
             return new MoveHandler(TypeOfMove.NO_MOVE);
         }
-        int x0 = pixelsToBoard(piece.getOldX());
-        int y0 = pixelsToBoard(piece.getOldY());
-
-        //GREEN KING PIECE
+        //KING PIECE
         if(piece.getTypeOfPiece() == TypeOfPiece.KING_GREEN || piece.getTypeOfPiece() == TypeOfPiece.KING_WHITE){
             if(Math.abs(newPosX - x0) == 1 && Math.abs(newPosY - y0) == 1){
                 return new MoveHandler(TypeOfMove.NORMAL_MOVE);
@@ -227,7 +225,11 @@ public class CheckersApp extends Application {
         else if(Math.abs(newPosX - x0) == 2 && newPosY - y0 == piece.getTypeOfPiece().moveDirection * 2){
             int enemyX = x0 + (newPosX - x0) / 2;
             int enemyY = y0 + (newPosY - y0) / 2;
-            TypeOfPiece enemyType = board[enemyX][enemyY].getPiece().getTypeOfPiece();
+            Piece enemyPiece = board[enemyX][enemyY].getPiece();
+            TypeOfPiece enemyType = null;
+            if(enemyPiece != null){
+                enemyType = enemyPiece.getTypeOfPiece();
+            }
             TypeOfPiece pieceType = piece.getTypeOfPiece();
             boolean isFromTeam = false;
             if(pieceType == TypeOfPiece.GREEN && enemyType == TypeOfPiece.KING_GREEN){
@@ -247,8 +249,8 @@ public class CheckersApp extends Application {
     }
 
     public void handleRound(int point){
-        switch (whoseTurn){
-            case "green":
+        switch (whoseTurn) {
+            case "green" -> {
                 disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, true);
                 disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, false);
                 if (point == 1) {
@@ -261,8 +263,8 @@ public class CheckersApp extends Application {
                 statusBar.getStatusLabel().setText("White turn");
                 greenTimeline.stop();
                 whiteTimeline.play();
-                break;
-            case "white":
+            }
+            case "white" -> {
                 disableOrEnablePieces(TypeOfPiece.WHITE, TypeOfPiece.KING_WHITE, true);
                 disableOrEnablePieces(TypeOfPiece.GREEN, TypeOfPiece.KING_GREEN, false);
                 if (point == 1) {
@@ -275,9 +277,9 @@ public class CheckersApp extends Application {
                 statusBar.getStatusLabel().setText("Green turn");
                 whiteTimeline.stop();
                 greenTimeline.play();
-                break;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
     }
 

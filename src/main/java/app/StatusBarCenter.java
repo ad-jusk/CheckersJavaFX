@@ -75,8 +75,8 @@ public class StatusBarCenter extends BorderPane {
         whiteSeconds = 30;
         greenKills = 0;
         whiteKills = 0;
-        whitePlayerLabel.setText(String.format("Points: %2d\n\n   00:%02d", whiteKills,whiteSeconds));
-        greenPlayerLabel.setText(String.format("Points: %2d\n\n   00:%02d", greenKills,greenSeconds));
+        whitePlayerLabel.setText(String.format("Points:  %2d\n\n   00:%02d", whiteKills,whiteSeconds));
+        greenPlayerLabel.setText(String.format("Points:  %2d\n\n   00:%02d", greenKills,greenSeconds));
     }
 
     public void setKills(int kills, String which) {
@@ -90,10 +90,10 @@ public class StatusBarCenter extends BorderPane {
 
     public void refreshPlayerLabel(String which){
         if(which.equals("green")){
-            greenPlayerLabel.setText(String.format("Points: %2d\n\n   00:%02d", greenKills, greenSeconds));
+            greenPlayerLabel.setText(String.format("Points:  %2d\n\n   00:%02d", greenKills, greenSeconds));
         }
         else{
-            whitePlayerLabel.setText(String.format("Points: %2d\n\n   00:%02d", whiteKills, whiteSeconds));
+            whitePlayerLabel.setText(String.format("Points:  %2d\n\n   00:%02d", whiteKills, whiteSeconds));
         }
     }
 

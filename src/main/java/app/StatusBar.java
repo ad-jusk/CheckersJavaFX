@@ -76,7 +76,6 @@ public class StatusBar extends BorderPane {
         setCenter(center);
     }
 
-
     public Label getStatusLabel() {
         return statusLabel;
     }
