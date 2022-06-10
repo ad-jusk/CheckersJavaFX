@@ -1,5 +1,3 @@
-# **CheckersJavaFX** 
-
 # **About the project**
 It's an university project allowing 2 players to play a game of checkers on one device.  
 Features timers and kinged pieces. Written in JavaFX.
